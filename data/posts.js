@@ -1,6 +1,4 @@
-Yeh rahi complete file 123+ articles ke saath — 7 categories aur 15+ different authors ke saath. Har article ka unique content hai:
 
-```js
 // Yeh file SQL database ki jagah hai.
 // Agar aap baad mein MySQL ya PostgreSQL add karna chahein,
 // toh is data ko database mein daal sakte hain.

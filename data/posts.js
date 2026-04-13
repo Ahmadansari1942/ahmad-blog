@@ -838,17 +838,5 @@ const posts = [
     summary: "The 15 VS Code extensions that genuinely improve developer productivity and code quality.",
     content: `<p>VS Code has over 40,000 extensions. Most are unnecessary. These 15 genuinely improve how you write, debug, and navigate code — install them and ignore the rest until you have a specific problem to solve.</p><h3>Essential for All Developers</h3><p><strong>GitHub Copilot:</strong> AI-powered code completion. Suggests entire functions and blocks based on context. The single biggest productivity booster available.</p><p><strong>ESLint:</strong> Catches JavaScript/TypeScript errors and style issues in real-time. Non-negotiable for any JS project.</p><p><strong>Prettier:</strong> Formats your code automatically on save. Eliminates formatting debates in teams. Configure it once and forget about it.</p><p><strong>Error Lens:</strong> Highlights errors and warnings directly in the code, inline. No more squinting at the problems panel.</p><h3>Navigation and Productivity</h3><p><strong>GitLens:</strong> See who changed each line, when, and why — directly in the editor. Essential for understanding code history.</p><p><strong>Bookmarks:</strong> Mark lines and navigate between them with keyboard shortcuts. Useful for jumping between related code sections.</p><p><strong>Multiple Cursor Case Preserve:</strong> When renaming variables with multiple cursors, preserves the original casing. Small but saves constant re-typing.</p><h3>Language-Specific</h3><p><strong>Python:</strong> Python extension by Microsoft — IntelliSense, debugging, linting, formatting all in one.</p><p><strong>React/TypeScript:</strong> ES7+ React/Redux/React-Native snippets — type rfce for a complete React component.</p><p><strong>Tailwind CSS IntelliSense:</strong> Autocomplete for Tailwind classes, shows which classes are applied, highlights errors.</p><h3>Quality of Life</h3><p><strong>Thunder Client:</strong> API testing inside VS Code. Like Postman but without leaving your editor.</p><p><strong>Docker:</strong> Manage Docker containers and images from the sidebar.</p><p><strong>Live Server:</strong> Launch a local development server with live reload for static HTML/CSS/JS.</p>`
   },
-  {
-    id: 76,
-    title: "Obsidian vs Notion: Which Note-Taking App Wins?",
-    category: "Apps",
-    author: "Farhan Akhtar",
-    date: "April 24, 2026",
-    image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80",
-    featured: false,
-    summary: "Two of the best note-taking apps compared — which one should you use?",
-    content: `<p>Obsidian and Notion are the two most popular note-taking apps for power users, but they take fundamentally different approaches. The right choice depends on how you think, what you need, and how much you value data ownership.</p><h3>Notion: The Database Approach</h3><p>Notion treats notes as database entries. Each note is a row in a table, and tables can be viewed as galleries, boards, calendars, or timelines. This makes Notion exceptional for structured information — project management, content calendars, reading lists, meeting notes with consistent fields.</p><p>
- },
-   ];
 
 module.exports = posts;

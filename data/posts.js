@@ -849,6 +849,6 @@ const posts = [
     summary: "Two of the best note-taking apps compared — which one should you use?",
     content: `<p>Obsidian and Notion are the two most popular note-taking apps for power users, but they take fundamentally different approaches. The right choice depends on how you think, what you need, and how much you value data ownership.</p><h3>Notion: The Database Approach</h3><p>Notion treats notes as database entries. Each note is a row in a table, and tables can be viewed as galleries, boards, calendars, or timelines. This makes Notion exceptional for structured information — project management, content calendars, reading lists, meeting notes with consistent fields.</p><p>
  },
-   ],
+   ];
 
 module.exports = posts;

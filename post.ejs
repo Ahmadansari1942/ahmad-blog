@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= post.title %> — AhmadBlog</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">AhmadBlog</span>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="#" class="nav-link">About</a>
+      <a href="#" class="nav-link">Contact</a>
+    </div>
+    <div class="nav-right">
+      <button class="create-btn" onclick="alert('Coming soon!')">✦ Create Article</button>
+    </div>
+  </div>
+</nav>
+
+<!-- POST HERO -->
+<section class="post-hero">
+  <img src="<%= post.image %>" alt="<%= post.title %>" class="post-hero-img"/>
+  <div class="post-hero-overlay"></div>
+  <div class="post-hero-content">
+    <div class="container">
+      <a href="/?category=<%= post.category %>" class="back-category-badge"><%= post.category %></a>
+      <h1 class="post-hero-title"><%= post.title %></h1>
+      <div class="post-hero-meta">
+        <div class="author-row">
+          <div class="author-avatar"><%= post.author.charAt(0) %></div>
+          <div>
+            <span style="color:#fff;font-weight:600;font-size:15px"><%= post.author %></span><br/>
+            <span style="color:#aaa;font-size:13px"><%= post.date %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POST CONTENT -->
+<section class="container post-layout">
+  <article class="post-article">
+    <p class="post-lead"><%= post.summary %></p>
+    <div class="post-body">
+      <%- post.content %>
+    </div>
+
+    <!-- Tags / Share -->
+    <div class="post-actions">
+      <a href="/?category=<%= post.category %>" class="pill">
+        <%= post.category %>
+      </a>
+      <a href="/" class="read-btn" style="margin-left:auto">← Back to Blog</a>
+    </div>
+  </article>
+
+  <!-- SIDEBAR -->
+  <aside class="post-sidebar">
+    <div class="sidebar-card">
+      <h3 class="sidebar-title">About the Author</h3>
+      <div class="author-box">
+        <div class="author-avatar-lg"><%= post.author.charAt(0) %></div>
+        <div>
+          <p style="font-weight:600;color:#fff;margin:0 0 4px"><%= post.author %></p>
+          <p style="color:#888;font-size:13px;margin:0">Writer & Contributor at AhmadBlog</p>
+        </div>
+      </div>
+    </div>
+
+    <% if (related.length > 0) { %>
+    <div class="sidebar-card">
+      <h3 class="sidebar-title">Related Posts</h3>
+      <div class="related-list">
+        <% related.forEach(r => { %>
+        <a href="/post/<%= r.id %>" class="related-item">
+          <img src="<%= r.image %>" alt="<%= r.title %>" class="related-img"/>
+          <div>
+            <p class="related-title"><%= r.title %></p>
+            <p class="related-date"><%= r.date %></p>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+  </aside>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <p>© 2026 AhmadBlog by <a href="https://github.com/Ahmadansari1942" style="color:#e85d24;text-decoration:none">Ahmadansari1942</a>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

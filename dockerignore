@@ -1,0 +1,31 @@
+# .dockerignore
+# Yeh file Docker ko batati hai ke image banate waqt
+# in files/folders ko IGNORE karo.
+# Git ka .gitignore jaisa hi kaam karta hai.
+
+# Node modules — EC2 pe fresh install hoga
+node_modules
+
+# Git history — container ko iski zaroorat nahi
+.git
+.gitignore
+
+# Environment files — secrets kabhi image mein mat dalo!
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode
+.idea
+
+# README
+README.md

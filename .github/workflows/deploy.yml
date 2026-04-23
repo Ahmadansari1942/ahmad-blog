@@ -41,3 +41,4 @@ jobs:
             --service node-service \
             --force-new-deployment \
             --region us-east-2
+            .

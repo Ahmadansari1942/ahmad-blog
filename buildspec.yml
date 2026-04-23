@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Docker Hub...
+      # Docker Hub login using env vars (Step 2 mein set karenge)
+      - echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      # Image build karein
+      - docker build -t ahmadansari19/ahmad-blog:latest .
+      # Tag karein
+      - docker tag ahmadansari19/ahmad-blog:latest ahmadansari19/ahmad-blog:latest
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      # Push to Docker Hub
+      - docker push ahmadansari19/ahmad-blog:latest
+      - echo Writing image definitions file...
+      # Ye file ECS ko batayega ke naya image konsa hai
+      - printf '[{"name":"blog-container","imageUri":"ahmadansari19/ahmad-blog:latest"}]' > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json

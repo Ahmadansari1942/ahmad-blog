@@ -6,7 +6,7 @@
 const posts = [
   {
     id: 100,
-    title: "Building AS Scalable Node.js Applications",
+    title: "Building Assume Scalable Node.js Applications",
     category: "Web",
     author: "Ahmad Ansari",
     date: "March 10, 2026",

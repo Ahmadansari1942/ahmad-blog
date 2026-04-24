@@ -24,7 +24,7 @@ phases:
       - docker push ahmadansari19/ahmad-blog:latest
       - echo Writing image definitions file...
       # Ye file ECS ko batayega ke naya image konsa hai
-      - printf '[{"name":"blog-container","imageUri":"ahmadansari19/ahmad-blog:latest"}]' > imagedefinitions.json
+      - printf '[{"name":"node-container","imageUri":"ahmadansari19/ahmad-blog:latest"}]' > imagedefinitions.json
 
 artifacts:
   files: imagedefinitions.json

@@ -4,22 +4,32 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
+      # 1. ECR Login (Push ke liye)
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 754437490241.dkr.ecr.us-east-2.amazonaws.com
+      
+      # 2. Docker Hub Login (Base image Pull ke liye - Limit hatane ke liye)
+      - echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+      
+      # Repository URI set karein
       - REPOSITORY_URI=754437490241.dkr.ecr.us-east-2.amazonaws.com/ahmad-blog-repo
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
+      # Image build karein
       - docker build -t $REPOSITORY_URI:latest .
 
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
+      # ECR par push karein
       - docker push $REPOSITORY_URI:latest
       - echo Writing image definitions file...
+      # JSON file generate karein
       - printf '[{"name":"node-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
 
 artifacts:
   files: imagedefinitions.json
+  

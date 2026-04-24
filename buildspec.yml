@@ -4,32 +4,21 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      # ECR mein login kar rahe hain
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 754437490241.dkr.ecr.us-east-2.amazonaws.com
-      # Image ka tag set kar rahe hain
       - REPOSITORY_URI=754437490241.dkr.ecr.us-east-2.amazonaws.com/ahmad-blog-repo
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_IMAGE_VERSION | cut -d: -f1)
-      # Commit ID ko tag kar rahe hain taake version track ho
-      - IMAGE_TAG=$(echo $CODEBUILD_SOURCE_VERSION | cut -c1-7)
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      # Image build karein
       - docker build -t $REPOSITORY_URI:latest .
-      # Image ko Commit ID se bhi tag karein
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      # ECR par push karein
       - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      # CRITICAL: ECR ka URI yahan likha hai
       - printf '[{"name":"node-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
 
 artifacts:

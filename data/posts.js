@@ -1,7 +1,6 @@
 
-// Yeh file SQL database ki jagah hai.
-// Agar aap baad mein MySQL ya PostgreSQL add karna chahein,
-// toh is data ko database mein daal sakte hain.
+// permanent datastore without connect db
+
 
 const posts = [
   {

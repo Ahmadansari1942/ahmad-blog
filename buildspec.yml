@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      # ECR mein login kar rahe hain (Password nahi chahiye, IAM role ka use ho raha hai)
+      # ECR mein login kar rahe hain
       - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 754437490241.dkr.ecr.us-east-2.amazonaws.com
       # Image ka tag set kar rahe hain
       - REPOSITORY_URI=754437490241.dkr.ecr.us-east-2.amazonaws.com/ahmad-blog-repo
@@ -21,7 +21,6 @@ phases:
       # Image ko Commit ID se bhi tag karein
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
-
   post_build:
     commands:
       - echo Build completed on `date`
@@ -32,5 +31,6 @@ phases:
       - echo Writing image definitions file...
       # CRITICAL: ECR ka URI yahan likha hai
       - printf '[{"name":"node-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
+
 artifacts:
   files: imagedefinitions.json

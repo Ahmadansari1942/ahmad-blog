@@ -1,0 +1,22 @@
+# Calico (CNI + NetworkPolicy enforcement) via the Tigera operator.
+# Pod CIDR must match `kubeadm init --pod-network-cidr` (see 02-master-init.sh).
+# VXLAN is used because plain IP-in-IP is often blocked between EC2 instances.
+apiVersion: operator.tigera.io/v1
+kind: Installation
+metadata:
+  name: default
+spec:
+  calicoNetwork:
+    ipPools:
+      - name: default-ipv4-ippool
+        blockSize: 26
+        cidr: 10.244.0.0/16
+        encapsulation: VXLAN
+        natOutgoing: Enabled
+        nodeSelector: all()
+---
+apiVersion: operator.tigera.io/v1
+kind: APIServer
+metadata:
+  name: default
+spec: {}

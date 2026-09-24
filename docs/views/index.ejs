@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AhmadBlog — Inspiring Stories</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-logo">
+      <div class="logo-icon">✦</div>
+      <span class="logo-text">AhmadBlog</span>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link active">Home</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+    <div class="nav-right">
+      <button class="create-btn" onclick="alert('Coming soon!')">✦ Create Article</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">Inspiring<br/><span class="gradient-text">Stories</span></h1>
+    <p class="hero-sub">Dive into a world of insightful articles covering technology,<br/>creativity, lifestyle, and beyond.</p>
+    
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-num"><%= totalArticles %></span>
+        <span class="stat-label">Articles</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num"><%= totalCategories %></span>
+        <span class="stat-label">Categories</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num"><%= totalAuthors %></span>
+        <span class="stat-label">Authors</span>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <form class="search-form" method="GET" action="/">
+      <input
+        type="text"
+        name="search"
+        class="search-input"
+        placeholder="Search articles..."
+        value="<%= searchQuery %>"
+      />
+      <button type="submit" class="search-btn">Search</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===== CATEGORY FILTERS ===== -->
+<div class="category-section">
+  <div class="container">
+    <div class="category-pills">
+      <% categories.forEach(cat => { %>
+        <a
+          href="/?category=<%= cat %>"
+          class="pill <%= currentCategory === cat ? 'pill-active' : '' %>"
+        >
+          <%= cat %>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FEATURED POST ===== -->
+<% if (featured && !searchQuery && currentCategory === 'All') { %>
+<section class="container">
+  <div class="featured-card">
+    <div class="featured-img-wrap">
+      <img src="<%= featured.image %>" alt="<%= featured.title %>" class="featured-img"/>
+    </div>
+    <div class="featured-content">
+      <span class="featured-badge">★ FEATURED</span>
+      <div class="post-meta">
+        <span class="category-tag"><%= featured.category %></span>
+        <span class="post-date"><%= featured.date %></span>
+      </div>
+      <h2 class="featured-title"><%= featured.title %></h2>
+      <p class="featured-summary"><%= featured.summary %></p>
+      <div class="post-author">
+        <div class="author-avatar"><%= featured.author.charAt(0) %></div>
+        <span><%= featured.author %></span>
+      </div>
+      <a href="/post/<%= featured.id %>" class="read-btn">Read Article →</a>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- ===== ALL POSTS GRID ===== -->
+<section class="container posts-section">
+  <h2 class="section-title">
+    <% if (searchQuery) { %>
+      Results for "<%= searchQuery %>"
+    <% } else if (currentCategory !== 'All') { %>
+      <%= currentCategory %> Articles
+    <% } else { %>
+      Latest Articles
+    <% } %>
+  </h2>
+
+  <% if (posts.length === 0) { %>
+    <div class="empty-state">
+      <p>No articles found.</p>
+      <a href="/" class="read-btn">View All Posts</a>
+    </div>
+  <% } else { %>
+  <div class="posts-grid">
+    <% posts.forEach(post => { %>
+    <div class="post-card">
+      <a href="/post/<%= post.id %>" class="post-card-link">
+        <div class="post-card-img-wrap">
+          <img src="<%= post.image %>" alt="<%= post.title %>" class="post-card-img" loading="lazy"/>
+          <span class="card-category-badge"><%= post.category %></span>
+        </div>
+        <div class="post-card-body">
+          <div class="post-card-meta">
+            <span class="post-card-date"><%= post.date %></span>
+          </div>
+          <h3 class="post-card-title"><%= post.title %></h3>
+          <p class="post-card-summary"><%= post.summary %></p>
+          <div class="post-card-footer">
+            <div class="author-row">
+              <div class="author-avatar-sm"><%= post.author.charAt(0) %></div>
+              <span class="author-name"><%= post.author %></span>
+            </div>
+            <span class="read-more">Read →</span>
+          </div>
+        </div>
+      </a>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="nav-logo" style="margin-bottom:12px">
+          <div class="logo-icon">✦</div>
+          <span class="logo-text">AhmadBlog</span>
+        </div>
+        <p style="color:#888;font-size:14px;max-width:260px">Inspiring stories about technology, creativity, and life. By Ahmadansari1942.</p>
+      </div>
+      <div>
+        <h4 style="color:#ccc;margin-bottom:12px;font-size:14px;font-weight:600">CATEGORIES</h4>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="/?category=Web" style="color:#888;text-decoration:none;font-size:14px">Web Development</a>
+          <a href="/?category=Apps" style="color:#888;text-decoration:none;font-size:14px">Apps</a>
+          <a href="/?category=Travel" style="color:#888;text-decoration:none;font-size:14px">Travel</a>
+          <a href="/?category=Lifestyle" style="color:#888;text-decoration:none;font-size:14px">Lifestyle</a>
+        </div>
+      </div>
+      <div>
+        <h4 style="color:#ccc;margin-bottom:12px;font-size:14px;font-weight:600">CONNECT</h4>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="https://github.com/Ahmadansari1942" target="_blank" style="color:#888;text-decoration:none;font-size:14px">GitHub</a>
+          <a href="#" style="color:#888;text-decoration:none;font-size:14px">Twitter</a>
+          <a href="#" style="color:#888;text-decoration:none;font-size:14px">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 AhmadBlog by <a href="https://github.com/Ahmadansari1942" style="color:#e85d24;text-decoration:none">Ahmadansari1942</a>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

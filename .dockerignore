@@ -1,0 +1,23 @@
+node_modules
+npm-debug.log*
+.git
+.gitignore
+.github
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# not needed inside the image
+k8s
+argocd
+docs
+scripts
+test
+screenshot.png
+README.md
+Dockerfile
+.dockerignore

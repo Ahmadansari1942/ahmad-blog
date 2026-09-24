@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store
+
+# Never commit real secrets — create them with scripts/05-create-secrets.sh
+*.secret.yaml
+secrets/
+*.pem
+*.key
+kubeconfig

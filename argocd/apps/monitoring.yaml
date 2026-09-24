@@ -1,0 +1,130 @@
+# Prometheus (metrics database) + Grafana (dashboards) + node-exporter + kube-state-metrics.
+# Access is PRIVATE (SSH tunnel + port-forward) — see docs/MONITORING.md.
+#
+# Before the first sync run on the master:  bash scripts/06-create-monitoring-secret.sh
+# and on the worker:                        sudo bash scripts/03c-worker-prometheus-storage.sh
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 87.19.2 # check newer: helm search repo prometheus-community/kube-prometheus-stack
+    helm:
+      valuesObject:
+        # ---- Alertmanager: off (no notification channel yet). Alerts are still visible in Prometheus/Grafana.
+        alertmanager:
+          enabled: false
+
+        # ---- Prometheus
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            retentionSize: 6GB # must stay below the 8Gi volume
+            # pick up ServiceMonitors / PodMonitors / PrometheusRules from ANY namespace (ours live in git, not Helm)
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+            probeSelectorNilUsesHelmValues: false
+            resources:
+              requests:
+                cpu: 200m
+                memory: 600Mi
+              limits:
+                memory: 1200Mi
+            # metrics survive pod restarts (node-local volume on the worker, see k8s/platform/monitoring/storage.yaml)
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: local-storage
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 8Gi
+
+        # ---- Grafana: admin password comes from a Secret (created by scripts/06), never from git
+        grafana:
+          admin:
+            existingSecret: grafana-admin
+            userKey: admin-user
+            passwordKey: admin-password
+          defaultDashboardsTimezone: Asia/Karachi
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 384Mi
+
+        # ---- Operator: no admission webhooks (their CA-bundle patching makes ArgoCD show a permanent
+        #      OutOfSync). tls must be disabled together with the webhooks.
+        prometheusOperator:
+          admissionWebhooks:
+            enabled: false
+          tls:
+            enabled: false
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 192Mi
+
+        kube-state-metrics:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 48Mi
+            limits:
+              memory: 128Mi
+
+        prometheus-node-exporter:
+          resources:
+            requests:
+              cpu: 20m
+              memory: 24Mi
+            limits:
+              memory: 64Mi
+
+        # ---- kubeadm control-plane components listen on 127.0.0.1 only -> scraping them would just fail
+        kubeControllerManager:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        defaultRules:
+          rules:
+            alertmanager: false
+            etcd: false
+            kubeControllerManager: false
+            kubeProxy: false
+            kubeSchedulerAlerting: false
+            kubeSchedulerRecording: false
+            windows: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # the CRDs are too large for client-side apply
+    retry:
+      limit: 5
+      backoff:
+        duration: 20s
+        factor: 2
+        maxDuration: 3m

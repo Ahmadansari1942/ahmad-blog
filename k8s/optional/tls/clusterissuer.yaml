@@ -1,0 +1,16 @@
+# OPTIONAL — needs cert-manager (argocd/optional/cert-manager.yaml).
+# Replace the e-mail, then:  kubectl apply -f k8s/optional/tls/clusterissuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: you@example.com # <-- CHANGE ME
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: traefik

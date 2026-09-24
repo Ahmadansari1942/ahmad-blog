@@ -1,0 +1,30 @@
+# OPTIONAL — HTTPS for the app. Copy this into k8s/overlays/prod/ and reference it
+# from kustomization.yaml:
+#
+#   patches:
+#     - path: ingress-patch.yaml
+#       target: { kind: Ingress, name: ahmad-blog }
+#
+# Replace blog.example.com with your domain (A record -> worker public IP).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ahmad-blog
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  tls:
+    - hosts: [blog.example.com]
+      secretName: ahmad-blog-tls
+  rules:
+    - host: blog.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ahmad-blog
+                port:
+                  name: http

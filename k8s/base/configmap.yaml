@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ahmad-blog-config
+  labels:
+    app.kubernetes.io/name: ahmad-blog
+data:
+  NODE_ENV: production
+  PORT: "3000"
+  METRICS_PORT: "9100"
+  DB_HOST: mysql          # headless Service of the MySQL StatefulSet
+  DB_PORT: "3306"
+  DB_NAME: blog
+  DB_CONNECTION_LIMIT: "10"
+  SHUTDOWN_DELAY_MS: "5000"

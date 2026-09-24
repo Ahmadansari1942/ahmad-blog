@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ahmad-blog
+  labels:
+    app.kubernetes.io/name: ahmad-blog
+spec:
+  ingressClassName: traefik
+  # No "host" on purpose: works with the plain EC2 public IP.
+  # When you get a domain, add a host + TLS (see k8s/optional/).
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ahmad-blog
+                port:
+                  name: http

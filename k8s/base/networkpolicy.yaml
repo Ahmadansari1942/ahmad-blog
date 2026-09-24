@@ -1,0 +1,114 @@
+# Zero-trust networking for the namespace (needs a CNI that enforces
+# NetworkPolicy — Calico, installed by scripts/02-master-init.sh).
+#
+#   internet -> Traefik -> ahmad-blog (app) -> mysql (data)
+#
+# 1) deny everything, 2) allow only the flows above.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+# DNS for every pod in the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+# Traefik -> app (HTTP), Prometheus -> app (metrics)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app-allow-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ahmad-blog
+      app.kubernetes.io/component: app
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+      ports:
+        - { protocol: TCP, port: 3000 }
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - { protocol: TCP, port: 9100 }
+---
+# app -> mysql
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: app-allow-egress-to-mysql
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: ahmad-blog
+      app.kubernetes.io/component: app
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: mysql
+      ports:
+        - { protocol: TCP, port: 3306 }
+---
+# mysql accepts connections only from the app and the backup job
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mysql-allow-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mysql
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ahmad-blog
+              app.kubernetes.io/component: app
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: mysql-backup
+      ports:
+        - { protocol: TCP, port: 3306 }
+---
+# backup job -> mysql
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backup-allow-egress-to-mysql
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mysql-backup
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: mysql
+      ports:
+        - { protocol: TCP, port: 3306 }

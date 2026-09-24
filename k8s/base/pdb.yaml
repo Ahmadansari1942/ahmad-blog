@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ahmad-blog
+  labels:
+    app.kubernetes.io/name: ahmad-blog
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ahmad-blog
+      app.kubernetes.io/component: app

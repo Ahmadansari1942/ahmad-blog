@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - networkpolicy.yaml
+  # data tier
+  - mysql/storage.yaml
+  - mysql/service.yaml
+  - mysql/statefulset.yaml
+  - mysql/backup-cronjob.yaml
+  # app tier
+  - deployment.yaml
+  - service.yaml
+  - hpa.yaml
+  - pdb.yaml
+  # web tier entry
+  - ingress.yaml
+
+# MySQL config file -> ConfigMap with a content hash in its name, so editing
+# my.cnf automatically rolls the StatefulSet.
+configMapGenerator:
+  - name: mysql-config
+    files:
+      - my.cnf=mysql/my.cnf

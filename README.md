@@ -1,6 +1,6 @@
 # AhmadBlog ✦
 
-> A dark-themed blog platform (Node.js + Express + EJS + MySQL) deployed as a **three-tier app on Kubernetes (kubeadm on AWS EC2) with ArgoCD GitOps**.
+> A dark-themed blog platform (Node.js + Express + EJS + MySQL) deployed as a **three-tier app on Kubernetes (kubeadm on AWS EC2) with ArgoCD GitOps**..
 
 ![AhmadBlog Screenshot](./screenshot.png)
 

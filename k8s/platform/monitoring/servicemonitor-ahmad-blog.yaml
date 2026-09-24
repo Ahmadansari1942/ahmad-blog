@@ -1,0 +1,19 @@
+# Tells Prometheus to scrape the blog's /metrics (port "metrics" = 9100, private — not exposed via ingress).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ahmad-blog
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: ahmad-blog
+spec:
+  namespaceSelector:
+    matchNames: [ahmad-blog]
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ahmad-blog
+      app.kubernetes.io/component: app
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s

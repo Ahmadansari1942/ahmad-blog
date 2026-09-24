@@ -1,0 +1,21 @@
+# Node-local volume for Prometheus on the worker (StorageClass "local-storage" is created by the ahmad-blog app).
+# The directory is created by scripts/03c-worker-prometheus-storage.sh (owner 1000:2000).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-data-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: /mnt/prometheus-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: role
+              operator: In
+              values: [worker]

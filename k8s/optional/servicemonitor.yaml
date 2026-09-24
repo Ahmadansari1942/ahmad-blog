@@ -1,0 +1,19 @@
+# OPTIONAL — apply AFTER argocd/optional/monitoring.yaml is synced
+# (the ServiceMonitor CRD must exist first):
+#   kubectl apply -f k8s/optional/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ahmad-blog
+  namespace: ahmad-blog
+  labels:
+    app.kubernetes.io/name: ahmad-blog
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ahmad-blog
+      app.kubernetes.io/component: app
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s

@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ahmad-blog
+
+resources:
+  - ../../base
+
+# CI (GitHub Actions) rewrites `newTag` on every successful build.
+# ArgoCD then notices the commit and rolls out that exact image.
+images:
+  - name: ahmadansari19/ahmad-blog
+    newTag: latest

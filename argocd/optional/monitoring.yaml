@@ -1,0 +1,58 @@
+# OPTIONAL — Prometheus + Grafana. Needs a bigger worker (>= 8 GB RAM recommended).
+# Enable with:  kubectl apply -f argocd/optional/monitoring.yaml
+# Then also apply k8s/optional/servicemonitor.yaml so Prometheus scrapes the app.
+#
+# Grafana:  kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3001:80
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 87.19.2 # check for newer: helm search repo prometheus-community/kube-prometheus-stack
+    helm:
+      valuesObject:
+        alertmanager:
+          enabled: false
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            # pick up ServiceMonitors from any namespace, not only Helm-labelled ones
+            serviceMonitorSelectorNilUsesHelmValues: false
+            resources:
+              requests:
+                cpu: 200m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+        grafana:
+          # kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+        # kubeadm control-plane components bind to localhost — scraping them fails
+        kubeControllerManager:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeProxy:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # the CRDs are too large for client-side apply

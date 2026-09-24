@@ -1,0 +1,33 @@
+# OPTIONAL — automatic HTTPS (Let's Encrypt). Requires a real domain that points
+# to the worker's public IP and ports 80 + 443 open in the security group.
+# Enable with:  kubectl apply -f argocd/optional/cert-manager.yaml
+# Then follow k8s/optional/tls/ (ClusterIssuer + Ingress patch).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: "v1.*" # any v1.x chart release
+    helm:
+      valuesObject:
+        crds:
+          enabled: true
+        nodeSelector:
+          role: worker
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

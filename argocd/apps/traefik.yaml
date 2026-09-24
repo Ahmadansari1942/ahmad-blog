@@ -31,7 +31,7 @@ spec:
         ports:
           web:
             hostPort: 80
-             http:                     
+            http:                     
               redirections:
                 entryPoint:
                   to: websecure

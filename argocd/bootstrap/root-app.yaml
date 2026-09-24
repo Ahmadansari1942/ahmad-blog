@@ -1,0 +1,22 @@
+# "App of apps": the ONE thing you apply by hand. It watches argocd/apps/ in git
+# and creates every other Application (projects, traefik, metrics-server, ahmad-blog).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Ahmadansari1942/ahmad-blog.git
+    targetRevision: main
+    path: argocd/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

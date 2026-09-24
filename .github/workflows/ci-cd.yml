@@ -1,5 +1,4 @@
 name: CI/CD (build -> scan -> push -> GitOps)
-
 on:
   push:
     branches: [main]

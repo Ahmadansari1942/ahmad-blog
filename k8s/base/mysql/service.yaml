@@ -1,0 +1,16 @@
+# Headless Service: gives the StatefulSet a stable DNS name  ->  mysql.ahmad-blog.svc
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/component: database
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql

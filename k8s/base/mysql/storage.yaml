@@ -1,0 +1,77 @@
+# Storage for a kubeadm cluster on plain EC2 (no cloud storage provisioner):
+# node-local volumes pinned to the worker node.
+#
+# Prerequisites (done by scripts/03a + 03b):
+#   - worker node labelled:   role=worker
+#   - directories on worker:  /mnt/mysql-data  and  /mnt/mysql-backup  (owner 999:999)
+#
+# NOTE: data lives on the worker's disk. Attach a dedicated EBS volume and mount
+# it at /mnt/mysql-data for better durability + easy snapshots (see docs/DEPLOY.md).
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-data-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef: # pre-bind so nothing else can grab this volume
+    namespace: ahmad-blog
+    name: data-mysql-0
+  local:
+    path: /mnt/mysql-data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: role
+              operator: In
+              values: [worker]
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-backup-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes: [ReadWriteOnce]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  claimRef:
+    namespace: ahmad-blog
+    name: mysql-backup
+  local:
+    path: /mnt/mysql-backup
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: role
+              operator: In
+              values: [worker]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-backup
+  annotations:
+    # WaitForFirstConsumer keeps this Pending until the first backup runs;
+    # don't let ArgoCD show the whole app as "Progressing" because of that.
+    argocd.argoproj.io/ignore-healthcheck: "true"
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 4Gi

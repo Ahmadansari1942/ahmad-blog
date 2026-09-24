@@ -1,0 +1,76 @@
+# Nightly logical backup (mysqldump | gzip) kept for the last 7 dumps.
+# NOTE: it lands on the same node as the database. For real disaster recovery
+# also copy the dumps off the node (e.g. aws s3 sync) — see docs/DEPLOY.md.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mysql-backup
+  labels:
+    app.kubernetes.io/name: mysql-backup
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 900
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: mysql-backup
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: backup
+              image: mysql:8.4
+              command:
+                - bash
+                - -euo
+                - pipefail
+                - -c
+                - |
+                  f="/backup/blog-$(date +%Y%m%d-%H%M%S).sql.gz"
+                  mysqldump -h mysql -u root --single-transaction --routines --triggers "$DB_NAME" | gzip > "$f.tmp"
+                  mv "$f.tmp" "$f"
+                  echo "backup written: $f ($(du -h "$f" | cut -f1))"
+                  # keep only the 7 newest dumps
+                  ls -1t /backup/blog-*.sql.gz | tail -n +8 | while read -r old; do rm -f -- "$old"; done
+              env:
+                - name: MYSQL_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-credentials
+                      key: root-password
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ahmad-blog-config
+                      key: DB_NAME
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              persistentVolumeClaim:
+                claimName: mysql-backup

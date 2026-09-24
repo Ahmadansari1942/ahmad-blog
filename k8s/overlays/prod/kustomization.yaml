@@ -10,4 +10,4 @@ resources:
 # ArgoCD then notices the commit and rolls out that exact image.
 images:
   - name: ahmadansari19/ahmad-blog
-    newTag: latest
+    newTag: d8ef106

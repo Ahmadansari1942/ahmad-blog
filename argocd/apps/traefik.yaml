@@ -31,6 +31,12 @@ spec:
         ports:
           web:
             hostPort: 80
+             http:                     
+              redirections:
+                entryPoint:
+                  to: websecure
+                  scheme: https
+                  permanent: true
           websecure:
             hostPort: 443
         nodeSelector:

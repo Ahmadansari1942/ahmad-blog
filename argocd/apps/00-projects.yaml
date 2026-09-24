@@ -1,0 +1,49 @@
+# Two AppProjects = least privilege.
+#  - platform   : cluster add-ons (ingress, metrics) — may create cluster-scoped objects
+#  - ahmad-blog : the application — may only create a small, fixed set of cluster objects
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: Cluster add-ons (Traefik, metrics-server, monitoring, cert-manager)
+  sourceRepos:
+    - https://traefik.github.io/charts
+    - https://kubernetes-sigs.github.io/metrics-server/
+    - https://prometheus-community.github.io/helm-charts
+    - https://charts.jetstack.io
+    - https://github.com/Ahmadansari1942/ahmad-blog.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ahmad-blog
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: AhmadBlog three-tier application
+  sourceRepos:
+    - https://github.com/Ahmadansari1942/ahmad-blog.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: ahmad-blog
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: ""
+      kind: PersistentVolume
+    - group: storage.k8s.io
+      kind: StorageClass
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

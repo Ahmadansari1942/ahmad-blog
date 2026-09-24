@@ -1,0 +1,66 @@
+# Web tier / ingress controller.
+# (ingress-nginx was retired by the Kubernetes project in March 2026, so Traefik is used.)
+#
+# EC2 has no cloud LoadBalancer here, so Traefik binds host ports 80/443 directly
+# on the worker node (hostPort) -> http://<WORKER_PUBLIC_IP>/
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: 41.3.0 # check for newer: helm search repo traefik/traefik
+    helm:
+      valuesObject:
+        deployment:
+          replicas: 1
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+        service:
+          spec:
+            type: ClusterIP # no cloud LB; traffic enters via hostPort below
+        ports:
+          web:
+            hostPort: 80
+          websecure:
+            hostPort: 443
+        nodeSelector:
+          role: worker
+        # A hostPort can be bound by only one pod per node, so we must stop the old
+        # pod before starting the new one (no surge).
+        updateStrategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        log:
+          format: json
+        accessLog:
+          enabled: true
+          format: json
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -11,3 +11,8 @@ resources:
 images:
   - name: ahmadansari19/ahmad-blog
     newTag: d8ef106
+patches:
+  - path: ingress-tls-patch.yaml
+    target:
+      kind: Ingress
+      name: ahmad-blog
